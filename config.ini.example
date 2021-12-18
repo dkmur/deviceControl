@@ -1,7 +1,9 @@
 path_to_poecontrol=
-username=
-version=
-community=
-switch_ip=
-switch_port=
 
+## Device 1
+1_type=				# poe or hilink
+1_ip=				# hilink or poe ip 
+1_port=				# hilink or poe port
+1_username=                     # poe username
+1_version=                      # poe snmp version used
+1_community=                    # poe community

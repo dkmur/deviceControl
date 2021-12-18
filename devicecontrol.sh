@@ -48,13 +48,13 @@ case $opt in
                 routine=1
                 exit
                 ;;
-         1)     $path_to_poecontrol/progs/port_cycle.sh
+         1)     $path_to_deviceControl/progs/port_cycle.sh
                 ;;
-         2)     $path_to_poecontrol/progs/port_stop.sh
+         2)     $path_to_deviceControl/progs/port_stop.sh
                 ;;
-         3)     $path_to_poecontrol/progs/port_start.sh
+         3)     $path_to_deviceControl/progs/port_start.sh
                 ;;
-         10)    $path_to_poecontrol/progs/all_cycle.sh
+         10)    $path_to_deviceControl/progs/all_cycle.sh
                 ;;
 esac
 # echo ""
