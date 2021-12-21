@@ -1,7 +1,14 @@
-path_to_poecontrol=
-username=
-version=
-community=
-switch_ip=
-switch_port=
+[general settings]
+path_to_deviceControl=
+
+
+[device1]				# replace device1 with devicename you want to use
+type = poe				# poe or hilink
+ip = 192.16.0.25			# ip adress of poe switch or relay, make sure to fix it
+port = 161				# port on which poe switch (default 161) or relay can be reached
+relays = 48				# number of relays / ports on switch
+sleep = 1m				# additional sleep to be added between cycling/starting ALL ports
+username = dkmur			# poe only 
+version = 3				# poe only, snmp version
+community = reboopoe			# poe only
 
