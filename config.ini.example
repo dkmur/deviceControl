@@ -1,8 +1,3 @@
-#general settings
-path_to_deviceControl=
-devices=device1				# comma seperated list of devices defined below
-default_device=device1			# device to be used when no name is entered in script
-
 # duplicate section below for each HiLink/PoE switch
 [device1]				# replace device1 with devicename you want to use
 type = poe				# poe or hilink

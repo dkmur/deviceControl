@@ -2,10 +2,14 @@
 
 stoppoe(){
 echo "snmpset -v $version -c $community -u $username $ip:$port 1.3.6.1.2.1.105.1.1.1.3.1.$action i 2"
+timing=$(date '+%Y%m%d %H:%M:%S')
+echo "[$timing] Stop on $device port $action" >> log.txt
 }
 
 startpoe(){
 echo "snmpset -v $version -c $community -u $username $ip:$port 1.3.6.1.2.1.105.1.1.1.3.1.$action i 1"
+timing=$(date '+%Y%m%d %H:%M:%S')
+echo "[$timing] Start on $device port $action" >> log.txt
 }
 
 if [[ -z ${1+x} || -z ${2+x} || -z ${3+x} ]]
