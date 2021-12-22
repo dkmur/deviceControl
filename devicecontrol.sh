@@ -12,19 +12,47 @@ timing=$(date '+%Y%m%d %H:%M:%S')
 echo "[$timing] Start on $device port $action" >> log.txt
 }
 
+stophilink(){
+adjusted_action=$((action-1))
+if [ $relaytype == no ]
+then
+setrelay=off
+else
+setrelay=on
+fi
+echo "./relaytoggle.sh $adjusted_action $setrelay $ip $port"
+timing=$(date '+%Y%m%d %H:%M:%S')
+echo "[$timing] Start on $device port $action" >> log.txt
+}
+
+starthilink(){
+adjusted_action=$((action-1))
+if [ $relaytype == no ]
+then
+setrelay=on
+else
+setrelay=off
+fi
+echo "./relaytoggle.sh $adjusted_action $setrelay $ip $port"
+timing=$(date '+%Y%m%d %H:%M:%S')
+echo "[$timing] Start on $device port $action" >> log.txt
+}
+
 if [[ -z ${1+x} || -z ${2+x} || -z ${3+x} ]]
 then
   # ask the questions
   clear
   echo ""
   echo ""
-  echo "Enter name of switch/relay to be used:"
+  devices=$(cat config.ini | grep '\[' | awk '{print $1}' | paste -s -d, - | tr '[' ' ' | tr ']' ' ')
+  echo "Enter name of switch/relay to be used ($devices):"
   read device
   echo ""
   echo "Action: stop, start or (power)cycle"
   read activity
   echo ""
-  echo "Enter port number or all"
+  relays=$(grep -A4 $device config.ini | tail -1 | awk '{ print $3 }')
+  echo "Enter port number (from 1 to $relays) or all"
   read action
   echo ""
 else
@@ -50,9 +78,13 @@ relays=$(grep -A4 $device config.ini | tail -1 | awk '{ print $3 }')
 sleep=$(grep -A5 $device config.ini | tail -1 | awk '{ print $3 }')
 if [ $type == poe ]
 then
-  username=$(grep -A6 $device config.ini | tail -1 | awk '{ print $3 }')
-  version=$(grep -A7 $device config.ini | tail -1 | awk '{ print $3 }')
-  community=$(grep -A8 $device config.ini | tail -1 | awk '{ print $3 }')
+  username=$(grep -A7 $device config.ini | tail -1 | awk '{ print $3 }')
+  version=$(grep -A8 $device config.ini | tail -1 | awk '{ print $3 }')
+  community=$(grep -A9 $device config.ini | tail -1 | awk '{ print $3 }')
+fi
+if [ $type == hilink ]
+then
+  relaytype=$(grep -A6 $device config.ini | tail -1 | awk '{ print $3 }')
 fi
 
 # stop poe port(s)
@@ -86,7 +118,7 @@ then
     action=1
     while (( $action <= $relays )); do
     echo ""
-    echo "Eanabling port $action"
+    echo "Enabling port $action"
     startpoe
     sleep $sleep
     action=$((action+1))
@@ -111,6 +143,70 @@ then
     stoppoe
     sleep 5s
     startpoe
+    echo "wait till next port $sleep"
+    sleep $sleep
+    action=$((action+1))
+    done
+  fi
+fi
+
+# stop hilink port(s)
+if [[ $type == hilink && $activity == stop ]]
+then
+  if [ $action != all ]
+  then
+    stophilink
+  fi
+  if [ $action == all ]
+  then
+    action=1
+    while (( $action <= $relays )); do
+    echo ""
+    echo "Disabling port $action"
+    stoppoe
+    sleep 3s
+    action=$((action+1))
+    done
+  fi
+fi
+# start hilink port
+if [[ $type == hilink && $activity == start ]]
+then
+  if [ $action != all ]
+  then
+    starthilink
+  fi
+  if [ $action == all ]
+  then
+    action=1
+    while (( $action <= $relays )); do
+    echo ""
+    echo "Enabling port $action"
+    startpoe
+    sleep $sleep
+    action=$((action+1))
+    done
+  fi
+fi
+# cycle hilink port
+if [[ $type == hilink && $activity == cycle ]]
+then
+  if [ $action != all ]
+  then
+    stophilink
+    sleep 5s
+    starthilink
+  fi
+  if [ $action == all ]
+  then
+    action=1
+    while (( $action <= $relays )); do
+    echo ""
+    echo "Power cycling port $action"
+    stophilink
+    sleep 5s
+    starthilink
+    echo "wait till next port $sleep"
     sleep $sleep
     action=$((action+1))
     done

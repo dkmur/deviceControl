@@ -5,6 +5,7 @@ ip = 192.168.0.25			# ip adress of poe switch or relay, make sure to fix it
 port = 161				# port on which poe switch (default 161) or relay can be reached
 relays = 48				# number of relays / ports on switch
 sleep = 1m				# additional sleep to be added between cycling/starting ALL ports
+relaytype = nc				# HiLink only, no (normally open) or nc (normally closed)
 username = dkmur			# poe only 
 version = 3				# poe only, snmp version
 community = reboopoe			# poe only
