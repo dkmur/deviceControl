@@ -41,20 +41,20 @@ echo "[$timing] Start port $action on $device" >> log.txt
 if [[ -z ${1+x} || -z ${2+x} || -z ${3+x} ]]
 then
   # ask the questions
-  clear
-  echo ""
-  echo ""
   devices=$(cat config.ini | grep '\[' | awk '{print $1}' | paste -s -d, - | tr '[' ' ' | tr ']' ' ')
   echo "Enter name of switch/relay to be used ($devices):"
   read device
   echo ""
-  echo "Action: stop, start or (power)cycle"
+  echo "Action: status, stop, start or (power)cycle"
   read activity
   echo ""
+  if [[ $activity != status ]]
+  then
   relays=$(grep -A4 $device config.ini | tail -1 | awk '{ print $3 }')
   echo "Enter port number (from 1 to $relays) or all"
   read action
   echo ""
+  fi
 else
   device=$1
   activity=$2
@@ -76,15 +76,15 @@ ip=$(grep -A2 $device config.ini | tail -1 | awk '{ print $3 }')
 port=$(grep -A3 $device config.ini | tail -1 | awk '{ print $3 }')
 relays=$(grep -A4 $device config.ini | tail -1 | awk '{ print $3 }')
 sleep=$(grep -A5 $device config.ini | tail -1 | awk '{ print $3 }')
+if [ $type == hilink ]
+then
+  relaytype=$(grep -A6 $device config.ini | tail -1 | awk '{ print $3 }')
+fi
 if [ $type == poe ]
 then
   username=$(grep -A7 $device config.ini | tail -1 | awk '{ print $3 }')
   version=$(grep -A8 $device config.ini | tail -1 | awk '{ print $3 }')
   community=$(grep -A9 $device config.ini | tail -1 | awk '{ print $3 }')
-fi
-if [ $type == hilink ]
-then
-  relaytype=$(grep -A6 $device config.ini | tail -1 | awk '{ print $3 }')
 fi
 
 # stop poe port(s)
@@ -211,4 +211,23 @@ then
     action=$((action+1))
     done
   fi
+fi
+
+# status hilink ports
+if [[ $type == hilink && $activity == status ]]
+then
+./relaystatus.sh $ip $port
+timing=$(date '+%Y%m%d %H:%M:%S')
+echo "[$timing] Status request on $device" >> log.txt
+fi
+
+# status poe ports
+if [[ $type == poe && $activity == status ]]
+then
+snmpwalk -v $version -c $community -u $username $ip:$port 1.3.6.1.2.1.105.1.3.1.1.4 | sed "s/iso.3.6.1.2.1.105.1.3.1.1.4.1 = Gauge32:/Switch power consumption:/g" | sed "s/$/ W/"
+echo ""
+echo "Port status"
+snmpwalk -v $version -c $community -u $username $ip:$port 1.3.6.1.2.1.2.2.1.8 | head -$relays | sed "s/INTEGER: 1/on/g" | sed "s/INTEGER: 2/off/g" | sed "s/iso.3.6.1.2.1.2.2.1.8./#/g"
+timing=$(date '+%Y%m%d %H:%M:%S')
+echo "[$timing] Status request on $device" >> log.txt
 fi
