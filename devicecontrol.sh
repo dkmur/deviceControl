@@ -22,7 +22,7 @@ setrelay=off
 else
 setrelay=on
 fi
-./$folder/relaytoggle.sh $adjusted_action $setrelay $ip $port
+.$folder/relaytoggle.sh $adjusted_action $setrelay $ip $port
 timing=$(date '+%Y%m%d %H:%M:%S')
 echo "[$timing] Start port $action on $device" >> log.txt
 }
@@ -35,7 +35,7 @@ setrelay=on
 else
 setrelay=off
 fi
-./$folder/relaytoggle.sh $adjusted_action $setrelay $ip $port
+.$folder/relaytoggle.sh $adjusted_action $setrelay $ip $port
 timing=$(date '+%Y%m%d %H:%M:%S')
 echo "[$timing] Start port $action on $device" >> log.txt
 }
@@ -218,7 +218,7 @@ fi
 # status hilink ports
 if [[ $type == hilink && $activity == status ]]
 then
-./$folder/relaystatus.sh $ip $port
+.$folder/relaystatus.sh $ip $port
 timing=$(date '+%Y%m%d %H:%M:%S')
 echo "[$timing] Status request on $device" >> log.txt
 fi
