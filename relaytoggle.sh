@@ -80,4 +80,4 @@ if [ ! -z $ERROR ]; then
 	echo -e $SYNTAX
 fi
 
-netcat $3 $4 -c "bash -c \"echo -e '$PREFIX$PREFIX2$SWITCHID$SWITCHTO$SUFFIX'\""
+ncat $3 $4 -c "bash -c \"echo -e '$PREFIX$PREFIX2$SWITCHID$SWITCHTO$SUFFIX'\""
