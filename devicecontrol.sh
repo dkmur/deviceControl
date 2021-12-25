@@ -1,6 +1,6 @@
 #!/bin/bash
 
-folder=$(pwd)
+folder=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 stoppoe(){
 echo "snmpset -v $version -c $community -u $username $ip:$port 1.3.6.1.2.1.105.1.1.1.3.1.$action i 2"
