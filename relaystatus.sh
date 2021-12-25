@@ -30,9 +30,9 @@ fi
 
 
 
-OUTPUT=`(echo -e "$PREFIX$PREFIX2$SWITCHID$SWITCHTO$SUFFIX";sleep 1)| ncat $1 $2` 
-#OUTPUT=`ncat 10.10.97.199 8080 -c "bash -c \"echo -e '$PREFIX$PREFIX2$SWITCHID$SWITCHTO$SUFFIX';sleep 1\""`
-#another try ncat 10.10.97.199 8080 -c "bash -c '(echo hello;sleep 3;read -n100 -d\"\\0x00\" abc;echo $abc)'"
+OUTPUT=`(echo -e "$PREFIX$PREFIX2$SWITCHID$SWITCHTO$SUFFIX";sleep 1)| netcat $1 $2` 
+#OUTPUT=`netcat 10.10.97.199 8080 -c "bash -c \"echo -e '$PREFIX$PREFIX2$SWITCHID$SWITCHTO$SUFFIX';sleep 1\""`
+#another try netcat 10.10.97.199 8080 -c "bash -c '(echo hello;sleep 3;read -n100 -d\"\\0x00\" abc;echo $abc)'"
 USABLE=`echo $OUTPUT | od -A n -v -t x1 | tr -d '\n'|sed 's/.*cc 0c/cc 0c/'|sed 's/ dd .*/ dd/'`
 counter=0
 for byte in $USABLE; do

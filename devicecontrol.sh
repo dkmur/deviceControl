@@ -50,7 +50,7 @@ then
   echo ""
   if [[ $activity != status ]]
   then
-  relays=$(grep -A4 $device config.ini | tail -1 | awk '{ print $3 }')
+  relays=$(grep -A4 '\[' config.ini | grep -A4 $device | tail -1 | awk '{ print $3 }')
   echo "Enter port number (from 1 to $relays) or all"
   read action
   echo ""
@@ -61,7 +61,7 @@ else
   action=$3
 fi
 
-check=$(grep $device config.ini | wc -l)
+check=$(grep '\[' config.ini | grep $device | wc -l)
 if (( $check == 0 ))
 then
   echo "switch/relay not found in config.ini, please check settings"
@@ -71,20 +71,20 @@ fi
 # we could check if we exceed max port/relay number of the device here and exit otherwise
 
 # get variables
-type=$(grep -A1 $device config.ini | tail -1 | awk '{ print $3 }')
-ip=$(grep -A2 $device config.ini | tail -1 | awk '{ print $3 }')
-port=$(grep -A3 $device config.ini | tail -1 | awk '{ print $3 }')
-relays=$(grep -A4 $device config.ini | tail -1 | awk '{ print $3 }')
-sleep=$(grep -A5 $device config.ini | tail -1 | awk '{ print $3 }')
+type=$(grep -A1 '\[' config.ini | grep -A1 $device | tail -1 | awk '{ print $3 }')
+ip=$(grep -A2 '\[' config.ini | grep -A2 $device | tail -1 | awk '{ print $3 }')
+port=$(grep -A3 '\[' config.ini | grep -A3 $device | tail -1 | awk '{ print $3 }')
+relays=$(grep -A4 '\[' config.ini | grep -A4 $device | tail -1 | awk '{ print $3 }')
+sleep=$(grep -A5 '\[' config.ini | grep -A5 $device | tail -1 | awk '{ print $3 }')
 if [ $type == hilink ]
 then
-  relaytype=$(grep -A6 $device config.ini | tail -1 | awk '{ print $3 }')
+  relaytype=$(grep -A6 '\[' config.ini | grep -A6 $device | tail -1 | awk '{ print $3 }')
 fi
 if [ $type == poe ]
 then
-  username=$(grep -A7 $device config.ini | tail -1 | awk '{ print $3 }')
-  version=$(grep -A8 $device config.ini | tail -1 | awk '{ print $3 }')
-  community=$(grep -A9 $device config.ini | tail -1 | awk '{ print $3 }')
+  username=$(grep -A7 '\[' config.ini | grep -A7 $device | tail -1 | awk '{ print $3 }')
+  version=$(grep -A8 '\[' config.ini | grep -A8 $device | tail -1 | awk '{ print $3 }')
+  community=$(grep -A9 '\[' config.ini | grep -A9 $device | tail -1 | awk '{ print $3 }')
 fi
 
 # stop poe port(s)
