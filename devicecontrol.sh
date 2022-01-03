@@ -3,13 +3,23 @@
 folder=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 stoppoe(){
-echo "snmpset -v $version -c $community -u $username $ip:$port 1.3.6.1.2.1.105.1.1.1.3.1.$action i 2"
+if [ $useSSH == true ]
+then
+  echo "ssh -p $ssh_port $ssh_user@$ssh_ip 'snmpset -v $version -c $community $ip:$port 1.3.6.1.2.1.105.1.1.1.3.1.$action i 2'"
+else
+  echo "snmpset -v $version -c $community $ip:$port 1.3.6.1.2.1.105.1.1.1.3.1.$action i 2"
+fi
 timing=$(date '+%Y%m%d %H:%M:%S')
 echo "[$timing] Stop port $action on $device" >> log.txt
 }
 
 startpoe(){
-echo "snmpset -v $version -c $community -u $username $ip:$port 1.3.6.1.2.1.105.1.1.1.3.1.$action i 1"
+if [ $useSSH == true ]
+then
+  echo "ssh -p $ssh_ip $ssh_user@$ssh_ip 'snmpset -v $version -c $community $ip:$port 1.3.6.1.2.1.105.1.1.1.3.1.$action i 1'"
+else
+  echo "snmpset -v $version -c $community $ip:$port 1.3.6.1.2.1.105.1.1.1.3.1.$action i 1"
+fi
 timing=$(date '+%Y%m%d %H:%M:%S')
 echo "[$timing] Start port $action on $device" >> log.txt
 }
@@ -84,9 +94,15 @@ then
 fi
 if [ $type == poe ]
 then
-  username=$(grep -A7 '\[' $folder/config.ini | grep -A7 $device | tail -1 | awk '{ print $3 }')
-  version=$(grep -A8 '\[' $folder/config.ini | grep -A8 $device | tail -1 | awk '{ print $3 }')
-  community=$(grep -A9 '\[' $folder/config.ini | grep -A9 $device | tail -1 | awk '{ print $3 }')
+  version=$(grep -A7 '\[' $folder/config.ini | grep -A7 $device | tail -1 | awk '{ print $3 }')
+  community=$(grep -A8 '\[' $folder/config.ini | grep -A8 $device | tail -1 | awk '{ print $3 }')
+fi
+useSSH=$(grep 'useSSH' $folder/config.ini | awk '{ print $3 }')
+if [ $useSSH == true ]
+then
+  ssh_user=$(grep 'ssh_user' $folder/config.ini | awk '{ print $3 }')
+  ssh_ip=$(grep 'ssh_ip' $folder/config.ini | awk '{ print $3 }')
+  ssh_port=$(grep 'ssh_port' $folder/config.ini | awk '{ print $3 }')
 fi
 
 # stop poe port(s)
@@ -226,10 +242,10 @@ fi
 # status poe ports
 if [[ $type == poe && $activity == status ]]
 then
-snmpwalk -v $version -c $community -u $username $ip:$port 1.3.6.1.2.1.105.1.3.1.1.4 | sed "s/iso.3.6.1.2.1.105.1.3.1.1.4.1 = Gauge32:/PoE power consumption:/g" | sed "s/$/ W/"
+snmpwalk -v $version -c $community $ip:$port 1.3.6.1.2.1.105.1.3.1.1.4 | sed "s/iso.3.6.1.2.1.105.1.3.1.1.4.1 = Gauge32:/PoE power consumption:/g" | sed "s/$/ W/"
 echo ""
 echo "Port status"
-snmpwalk -v $version -c $community -u $username $ip:$port 1.3.6.1.2.1.2.2.1.8 | head -$relays | sed "s/INTEGER: 1/on/g" | sed "s/INTEGER: 2/off/g" | sed "s/iso.3.6.1.2.1.2.2.1.8./#/g"
+snmpwalk -v $version -c $community $ip:$port 1.3.6.1.2.1.2.2.1.8 | head -$relays | sed "s/INTEGER: 1/on/g" | sed "s/INTEGER: 2/off/g" | sed "s/iso.3.6.1.2.1.2.2.1.8./#/g"
 timing=$(date '+%Y%m%d %H:%M:%S')
 echo "[$timing] Status request on $device" >> log.txt
 fi
