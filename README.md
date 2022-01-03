@@ -5,7 +5,8 @@ script to control (start, stop or powercycle) or get status on PoE or HiLink por
 ## Installation
 - git clone and copy config file `git clone https://github.com/dkmur/deviceControl.git && cd deviceControl && cp config.ini.example config.ini`<br>
 - fill out details in config.ini, duplicate example section for each device you want to control<br>
-- install ncat. Debian `sudo apt install ncat`, Ubuntu `sudo apt install nmap`
+- install ncat. Debian `sudo apt install ncat`, Ubuntu `sudo apt install nmap`<br>
+- install snmp, `sudo apt install snmp`<br>
 
 ## Usage
 execute `./devicecontrol.sh`<br>
