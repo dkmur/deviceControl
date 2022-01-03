@@ -8,7 +8,7 @@ script to control (start, stop or powercycle) or get status on PoE or HiLink por
 - for controlling HiLink relay: install ncat. Debian `sudo apt install ncat`, Ubuntu `sudo apt install nmap`<br>
 - for controlling PoE switch: install snmp, `sudo apt install snmp`<br>
 <br>
-If your server isn't local, for PoE there is the option to have the snmp control over local server i.e. a rPI by setting up SSH key-based authentication. See <https://linuxize.com/post/how-to-setup-passwordless-ssh-login/>.<br>
+If your server isn't local, for PoE there is the option to have the snmp control over local server i.e. a rPI by setting up SSH key-based authentication. See https://linuxize.com/post/how-to-setup-passwordless-ssh-login/.<br>
 <br>    
 ## Usage
 execute `./devicecontrol.sh`<br>
