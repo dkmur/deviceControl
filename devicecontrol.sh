@@ -5,9 +5,11 @@ folder=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 stoppoe(){
 if [ $useSSH == true ]
 then
-  echo "ssh -p $ssh_port $ssh_user@$ssh_ip 'snmpset -v $version -c $community $ip:$port 1.3.6.1.2.1.105.1.1.1.3.1.$action i 2'"
+#  echo "ssh -p $ssh_port $ssh_user@$ssh_ip 'snmpset -v $version -c $community $ip:$port 1.3.6.1.2.1.105.1.1.1.3.1.$action i 2'"
+  ssh -p $ssh_port $ssh_user@$ssh_ip 'snmpset -v $version -c $community $ip:$port 1.3.6.1.2.1.105.1.1.1.3.1.$action i 2'
 else
-  echo "snmpset -v $version -c $community $ip:$port 1.3.6.1.2.1.105.1.1.1.3.1.$action i 2"
+#  echo "snmpset -v $version -c $community $ip:$port 1.3.6.1.2.1.105.1.1.1.3.1.$action i 2"
+  snmpset -v $version -c $community $ip:$port 1.3.6.1.2.1.105.1.1.1.3.1.$action i 2
 fi
 timing=$(date '+%Y%m%d %H:%M:%S')
 echo "[$timing] Stop port $action on $device" >> log.txt
@@ -16,9 +18,11 @@ echo "[$timing] Stop port $action on $device" >> log.txt
 startpoe(){
 if [ $useSSH == true ]
 then
-  echo "ssh -p $ssh_ip $ssh_user@$ssh_ip 'snmpset -v $version -c $community $ip:$port 1.3.6.1.2.1.105.1.1.1.3.1.$action i 1'"
+#  echo "ssh -p $ssh_ip $ssh_user@$ssh_ip 'snmpset -v $version -c $community $ip:$port 1.3.6.1.2.1.105.1.1.1.3.1.$action i 1'"
+  ssh -p $ssh_ip $ssh_user@$ssh_ip 'snmpset -v $version -c $community $ip:$port 1.3.6.1.2.1.105.1.1.1.3.1.$action i 1'
 else
-  echo "snmpset -v $version -c $community $ip:$port 1.3.6.1.2.1.105.1.1.1.3.1.$action i 1"
+#  echo "snmpset -v $version -c $community $ip:$port 1.3.6.1.2.1.105.1.1.1.3.1.$action i 1"
+  snmpset -v $version -c $community $ip:$port 1.3.6.1.2.1.105.1.1.1.3.1.$action i 1
 fi
 timing=$(date '+%Y%m%d %H:%M:%S')
 echo "[$timing] Start port $action on $device" >> log.txt
