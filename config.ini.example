@@ -1,3 +1,8 @@
+useSSH = false				# true/false to use SSH key-based authentication to conrol PoE via local server i.e. rPI
+ssh_user = dkmur			# user as defined on local server
+ssh_ip = 123.456.789.0			# ip address to local server, when using this option most likely your home WAN IP
+ssh_port = 22				# port to use, make sure the port is forwarded to local server 
+
 # duplicate section below for each HiLink/PoE switch
 [device1]				# replace device1 with devicename you want to use
 type = poe				# poe or hilink
@@ -6,7 +11,6 @@ port = 161				# port on which poe switch (default 161) or relay can be reached
 relays = 48				# number of relays / ports on switch
 sleep = 1m				# additional sleep to be added between cycling/starting ALL ports
 relaytype = nc				# HiLink only, no (normally open) or nc (normally closed)
-username = dkmur			# poe only 
-version = 3				# poe only, snmp version
+version = 1				# poe only, snmp version
 community = reboopoe			# poe only
 
