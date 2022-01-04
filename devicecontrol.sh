@@ -34,7 +34,7 @@ setrelay=on
 fi
 cd $folder && ./relaytoggle.sh $adjusted_action $setrelay $ip $port
 timing=$(date '+%Y%m%d %H:%M:%S')
-echo "[$timing] Start port $action on $device" >> log.txt
+echo "[$timing] Stop port $action on $device" >> log.txt
 }
 
 starthilink(){
