@@ -80,7 +80,13 @@ fi
 check=$(grep '\[' $folder/config.ini | grep $device | wc -l)
 if (( $check == 0 ))
 then
-  echo "switch/relay not found in $folder/config.ini, please check settings"
+  echo "$device not found in $folder/config.ini, check settings"
+  exit
+fi
+
+if (( $relays < $action ))
+then
+  echo "$device has $relays ports available, $activity on relay $action is not possible"
   exit
 fi
 
