@@ -81,16 +81,16 @@ check=$(grep '\[' $folder/config.ini | grep $device | wc -l)
 if (( $check == 0 ))
 then
   echo "$device not found in $folder/config.ini, check settings"
-  exit
+  exit 1
 fi
 
-if (( $relays < $action ))
+if [[ $relays < $action ]]
 then
+  relays=$(grep -A4 '\[' $folder/config.ini | grep -A4 $device | tail -1 | awk '{ print $3 }')
   echo "$device has $relays ports available, $activity on relay $action is not possible"
-  exit
+  exit 1
 fi
 
-# we could check if we exceed max port/relay number of the device here and exit otherwise
 
 # get variables
 type=$(grep -A1 '\[' $folder/config.ini | grep -A1 $device | tail -1 | awk '{ print $3 }')
