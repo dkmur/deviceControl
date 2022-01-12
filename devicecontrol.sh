@@ -254,10 +254,20 @@ fi
 # status poe ports
 if [[ $type == poe && $activity == status ]]
 then
-snmpwalk -v $version -c $community $ip:$port 1.3.6.1.2.1.105.1.3.1.1.4 | sed "s/iso.3.6.1.2.1.105.1.3.1.1.4.1 = Gauge32:/PoE power consumption:/g" | sed "s/$/ W/"
+  if [ $useSSH == true ]
+  then
+    ssh -p $ssh_port $ssh_user@$ssh_ip "snmpwalk -v $version -c $community $ip:$port 1.3.6.1.2.1.105.1.3.1.1.4 | sed 's/iso.3.6.1.2.1.105.1.3.1.1.4.1 = Gauge32:/PoE power consumption:/g' | sed 's/$/ W/'"
+  else
+    snmpwalk -v $version -c $community $ip:$port 1.3.6.1.2.1.105.1.3.1.1.4 | sed "s/iso.3.6.1.2.1.105.1.3.1.1.4.1 = Gauge32:/PoE power consumption:/g" | sed "s/$/ W/"
+  fi
 echo ""
 echo "Port status"
-snmpwalk -v $version -c $community $ip:$port 1.3.6.1.2.1.2.2.1.8 | head -$relays | sed "s/INTEGER: 1/on/g" | sed "s/INTEGER: 2/off/g" | sed "s/iso.3.6.1.2.1.2.2.1.8./#/g"
+  if [ $useSSH == true ]
+  then
+    ssh -p $ssh_port $ssh_user@$ssh_ip "snmpwalk -v $version -c $community $ip:$port 1.3.6.1.2.1.2.2.1.8 | head -$relays | sed 's/INTEGER: 1/on/g' | sed 's/INTEGER: 2/off/g' | sed 's/iso.3.6.1.2.1.2.2.1.8./#/g'"
+  else
+    snmpwalk -v $version -c $community $ip:$port 1.3.6.1.2.1.2.2.1.8 | head -$relays | sed "s/INTEGER: 1/on/g" | sed "s/INTEGER: 2/off/g" | sed "s/iso.3.6.1.2.1.2.2.1.8./#/g"
+  fi
 timing=$(date '+%Y%m%d %H:%M:%S')
 echo "[$timing] Status request on $device" >> log.txt
 fi
