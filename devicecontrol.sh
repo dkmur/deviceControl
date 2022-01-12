@@ -77,20 +77,6 @@ else
   action=$3
 fi
 
-check=$(grep '\[' $folder/config.ini | grep $device | wc -l)
-if (( $check == 0 ))
-then
-  echo "$device not found in $folder/config.ini, check settings"
-  exit 1
-fi
-
-if [[ $relays < $action ]]
-then
-  relays=$(grep -A4 '\[' $folder/config.ini | grep -A4 $device | tail -1 | awk '{ print $3 }')
-  echo "$device has $relays ports available, $activity on relay $action is not possible"
-  exit 1
-fi
-
 
 # get variables
 type=$(grep -A1 '\[' $folder/config.ini | grep -A1 $device | tail -1 | awk '{ print $3 }')
@@ -114,6 +100,22 @@ then
   ssh_ip=$(grep 'ssh_ip' $folder/config.ini | awk '{ print $3 }')
   ssh_port=$(grep 'ssh_port' $folder/config.ini | awk '{ print $3 }')
 fi
+
+
+# checks
+check=$(grep '\[' $folder/config.ini | grep $device | wc -l)
+if (( $check == 0 ))
+then
+  echo "$device not found in $folder/config.ini, check settings"
+  exit 1
+fi
+
+if [[ $relays < $action ]]
+then
+  echo "$device has $relays ports available, $activity on relay $action is not possible"
+  exit 1
+fi
+
 
 # stop poe port(s)
 if [[ $type == poe && $activity == stop ]]
