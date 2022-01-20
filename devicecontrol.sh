@@ -110,7 +110,7 @@ then
   exit 1
 fi
 
-if [[ $relays < $action ]]
+if [[ $relays -lt $action ]]
 then
   echo "$device has $relays ports available, $activity on relay $action is not possible"
   exit 1
