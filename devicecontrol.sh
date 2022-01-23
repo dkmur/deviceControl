@@ -56,6 +56,14 @@ MADmin_url=$(grep -A1 "^MAD_instance_name.*$instance_name" $pathStats/config.ini
 MADmin_user=$(grep -A2 "^MAD_instance_name.*$instance_name" $pathStats/config.ini | tail -1 | awk 'BEGIN { FS = "=" } ; { print $2 }')
 MADmin_pass=$(grep -A3 "^MAD_instance_name.*$instance_name" $pathStats/config.ini | tail -1 | awk 'BEGIN { FS = "=" } ; { print $2 }')
 
+echo $origin
+echo $action
+echo $deviceid
+echo $instance_name
+echo $MADmin_url
+echo $MADmin_user
+echo $MADmin_pass
+
 if [ $action == "pause" ]
 then
   pause

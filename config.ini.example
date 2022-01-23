@@ -1,4 +1,4 @@
-pathStats = /home/....			# path to dkmur Stats to re-use MADmin/instance settings
+pathStats = /home/....			# path to dkmur Stats to re-use MADmin/instance + DB settings
 
 useSSH = false				# true/false to use SSH key-based authentication to conrol PoE via local server i.e. rPI
 ssh_user = dkmur			# user as defined on local server
