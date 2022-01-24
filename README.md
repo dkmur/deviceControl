@@ -27,3 +27,12 @@ Example can be found in MadGruber config folder
 ### Devicecontrol
 - will allow MadGruber to use MAD api for stuff like pause device, reboot device and restart pogo.
 - set `pathStats` at least, as for now Im linking to Stats config.ini, no need to have it running just clone and fill out DB and MADmin sections https://github.com/dkmur/Stats
+- in case you want to power cycle based on origin add table below to STATSdb and fill out the details.
+```
+CREATE TABLE IF NOT EXISTS `relay` (
+  `origin` varchar(50) NOT NULL,
+  `name` varchar(50) NOT NULL,
+  `port` int(6) NOT NULL,
+  PRIMARY KEY (`origin`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
