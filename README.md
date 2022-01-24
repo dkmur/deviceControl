@@ -1,7 +1,9 @@
 # deviceControl
 
-script to control (start, stop or powercycle) or get status on PoE or HiLink ports.<br>
-<br>
+scripts to:
+- control (start, stop or powercycle) or get status on PoE or HiLink ports.<br>
+- allow MadGruber to pause device, reboot device etc.<br>
+
 ## Installation
 - git clone and copy config file `git clone https://github.com/dkmur/deviceControl.git && cd deviceControl && cp config.ini.example config.ini`<br>
 - fill out details in config.ini, duplicate example section for each device you want to control<br>
