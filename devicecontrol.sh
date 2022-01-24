@@ -24,7 +24,7 @@ curl --silent --output /dev/null --show-error --fail -u $MADmin_user:$MADmin_pas
 }
 
 quit(){
-curl --silent --output /dev/null --show-error --fail -u $MADmin_user:$MADmin_pass "$MADmin_url/quit_pogo?origin=$origin"
+curl --silent --output /dev/null --show-error --fail -u $MADmin_user:$MADmin_pass "$MADmin_url/quit_pogo?origin=$origin&adb=False"
 }
 
 start(){
