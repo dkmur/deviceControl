@@ -2,7 +2,7 @@
 
 scripts to:
 - control (start, stop or powercycle) or get status on PoE or HiLink ports.<br>
-- allow MadGruber to pause device, reboot device etc.<br>
+- allow MadGruber to pause device, reboot device etc https://github.com/RagingRectangle/MadGruber.<br>
 
 ## Installation
 - git clone and copy config file `git clone https://github.com/dkmur/deviceControl.git && cd deviceControl && cp config.ini.example config.ini`<br>
@@ -26,4 +26,4 @@ Example can be found in MadGruber config folder
 
 ### Devicecontrol
 - will allow MadGruber to use MAD api for stuff like pause device, reboot device and restart pogo.
-- set `pathStats` at least, as for now Im linking to Stats config.ini, no need to have it running just clone and fill out DB and MADmin sections
+- set `pathStats` at least, as for now Im linking to Stats config.ini, no need to have it running just clone and fill out DB and MADmin sections https://github.com/dkmur/Stats
