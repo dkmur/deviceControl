@@ -35,8 +35,7 @@ curl --silent --output /dev/null --show-error --fail -u $MADmin_user:$MADmin_pas
 }
 
 logcatDevice(){
-# curl --silent  --show-error --fail -O -J -L -u $MADmin_user:$MADmin_pass "$MADmin_url/download_logcat?origin=$origin"  || echo "Failed download logcat" && exit 1
-curl --silent  --show-error --fail -O -J -L -u $MADmin_user:$MADmin_pass "$MADmin_url/download_logcat?origin=$origin"
+curl --silent  --show-error --fail -O -J -L -u $MADmin_user:$MADmin_pass "$MADmin_url/download_logcat?origin=$origin"  || echo "Failed download logcat" && exit 1
 }
 
 clearGame(){
@@ -58,24 +57,20 @@ fi
 # get variables
 origin=$1
 action=$2
-echo "wtf2"
 deviceid=$(query "$MAD_DB" "select device_id from settings_device where name = '$origin'") || echo "Cannot query MADdb for device_id"
-echo "wtf3"
 instance_name=$(query "$MAD_DB" "select b.name from settings_device a, madmin_instance b where a.name = '$origin' and a.instance_id = b.instance_id") || echo "Cannot query MADdb for instance_name"
-echo "wtf"
 MADmin_url=$(grep -A1 "^MAD_instance_name.*$instance_name" $pathStats/config.ini | tail -1 | awk 'BEGIN { FS = "=" } ; { print $2 }')
 MADmin_user=$(grep -A2 "^MAD_instance_name.*$instance_name" $pathStats/config.ini | tail -1 | awk 'BEGIN { FS = "=" } ; { print $2 }')
 MADmin_pass=$(grep -A3 "^MAD_instance_name.*$instance_name" $pathStats/config.ini | tail -1 | awk 'BEGIN { FS = "=" } ; { print $2 }')
 
-echo $origin
-echo $action
-echo $deviceid
-echo $instance_name
-echo $MADmin_url
-echo $MADmin_user
-echo $MADmin_pass
+#echo $origin
+#echo $action
+#echo $deviceid
+#echo $instance_name
+#echo $MADmin_url
+#echo $MADmin_user
+#echo $MADmin_pass
 
-echo "test"
 
 if [ $action == "pauseDevice" ]
 then
