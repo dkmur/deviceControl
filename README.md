@@ -23,4 +23,5 @@ order of input: `./relay_poe_control.sh deviceName action port` where:<br>
 Example can be found in MadGruber config folder
 
 ### Devicecontrol
-?? guess we need some wording on this as well
+- will allow MadGruber to use MAD api for stuff like pause device, reboot device and restart pogo.
+- set `pathStats` at least, as for now Im linking to Stats config.ini, no need to have it running just clone and fill out DB and MADmin sections
