@@ -48,7 +48,7 @@ then
 echo "Missing input paramter(s), exiting"
 exit 1
 fi
-if [ $2 != "pauseDevice" ] && [ $2 != "unpauseDevice" ] && [ $2 != "quitPogo" ] && [ $2 != "startPogo" ] && [ $2 != "rebootDevice" ] && [ $2 != "logcatDevice" ] && [ $2 != "clearGame" ]
+if [ $2 != "pauseDevice" ] && [ $2 != "unpauseDevice" ] && [ $2 != "quitPogo" ] && [ $2 != "startPogo" ] && [ $2 != "rebootDevice" ] && [ $2 != "logcatDevice" ] && [ $2 != "clearGame" ]  && [ $2 != "cycle" ]
 then
 echo "Invalid action, exiting"
 exit 1
@@ -93,6 +93,11 @@ then
 elif [ $action == "clearGame" ]
 then
   clearGame
+elif [ $action == "cycle" ]
+then
+  relay_name=$(query "$STATS_DB" "select name from relay where origin = '$origin'") || echo "Cannot query STATSdb for relay_name"
+  relay_port=$(query "$STATS_DB" "select port from relay where origin = '$origin'") || echo "Cannot query STATSdb for relay_port"
+  $folder/relay_poe_control.sh $relay_name $action $relay_port
 else
   echo "no clue anymore :P"
 fi
