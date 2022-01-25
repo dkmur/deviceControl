@@ -89,7 +89,10 @@ then
   reboot
 elif [ $action == "logcatDevice" ]
 then
+  filename=$(curl --silent --show-error --fail -L --head -u MADshiny:MADshiny287 "http://devices.pogomapper.nl:5002/download_logcat?origin=Rijen01" | grep filename | awk 'BEGIN { FS = "=" } ; { print $2 }')
+  rm -f $filename
   logcatDevice
+  unzip -o $filename
 elif [ $action == "clearGame" ]
 then
   clearGame
