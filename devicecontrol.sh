@@ -89,7 +89,7 @@ then
   reboot
 elif [ $action == "logcatDevice" ]
 then
-  filename=$(curl --silent --show-error --fail -L --head -u MADshiny:MADshiny287 "http://devices.pogomapper.nl:5002/download_logcat?origin=Rijen01" | grep filename | awk 'BEGIN { FS = "=" } ; { print $2 }')
+  filename=$(curl --silent --show-error --fail -L --head -u  $MADmin_user:$MADmin_pass "$MADmin_url/download_logcat?origin=$origin" | grep filename | awk 'BEGIN { FS = "=" } ; { print $2 }')
   rm -f $filename
   logcatDevice
   unzip -o $filename
