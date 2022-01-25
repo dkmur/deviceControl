@@ -35,7 +35,7 @@ curl --silent --output /dev/null --show-error --fail -u $MADmin_user:$MADmin_pas
 }
 
 logcatDevice(){
-curl --silent  --show-error --fail -O -J -L -u $MADmin_user:$MADmin_pass "$MADmin_url/download_logcat?origin=$origin"  || echo "Failed download logcat" && exit 1
+curl --silent  --show-error --fail -O -J -L -u $MADmin_user:$MADmin_pass "$MADmin_url/download_logcat?origin=$origin"
 }
 
 clearGame(){
@@ -89,10 +89,12 @@ then
   reboot
 elif [ $action == "logcatDevice" ]
 then
-  filename=$(curl --silent --show-error --fail -L --head -u  $MADmin_user:$MADmin_pass "$MADmin_url/download_logcat?origin=$origin" | grep filename | awk 'BEGIN { FS = "=" } ; { print $2 }')
-  rm -f $filename
+#  filename=$(curl --silent --show-error --fail -L --head -u  $MADmin_user:$MADmin_pass "$MADmin_url/download_logcat?origin=$origin" | grep -w filename | awk 'BEGIN { FS = "=" } ; { print $2 }'
+  rm -f logcat_$origin.zip
   logcatDevice
-  unzip -o $filename
+  rm -f logcat.txt
+  unzip -q logcat_$origin.zip
+  rm -f logcat_$origin.zip
 elif [ $action == "clearGame" ]
 then
   clearGame
