@@ -2,272 +2,108 @@
 
 folder=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-stoppoe(){
-if [ $useSSH == true ]
+pathStats=$(grep 'pathStats' $folder/config.ini | awk '{ print $3 }')
+source $pathStats/config.ini
+
+query(){
+if [ -z "$SQL_password" ]
 then
-#  echo 'ssh -p $ssh_port $ssh_user@$ssh_ip "snmpset -v $version -c $community $ip:$port 1.3.6.1.2.1.105.1.1.1.3.1.$action i 2"'
-  ssh -p $ssh_port $ssh_user@$ssh_ip "snmpset -v $version -c $community $ip:$port 1.3.6.1.2.1.105.1.1.1.3.1.$action i 2"
+  mysql -h$DB_IP -P$DB_PORT -u$SQL_user $1 -sN -e "$2;"
 else
-#  echo "snmpset -v $version -c $community $ip:$port 1.3.6.1.2.1.105.1.1.1.3.1.$action i 2"
-  snmpset -v $version -c $community $ip:$port 1.3.6.1.2.1.105.1.1.1.3.1.$action i 2
+  mysql -h$DB_IP -P$DB_PORT -u$SQL_user -p$SQL_password $1 -sN -e "$2;"
 fi
-timing=$(date '+%Y%m%d %H:%M:%S')
-echo "[$timing] Stop port $action on $device" >> log.txt
 }
 
-startpoe(){
-if [ $useSSH == true ]
-then
-#  echo 'ssh -p $ssh_port $ssh_user@$ssh_ip "snmpset -v $version -c $community $ip:$port 1.3.6.1.2.1.105.1.1.1.3.1.$action i 1"'
-  ssh -p $ssh_port $ssh_user@$ssh_ip "snmpset -v $version -c $community $ip:$port 1.3.6.1.2.1.105.1.1.1.3.1.$action i 1"
-else
-#  echo "snmpset -v $version -c $community $ip:$port 1.3.6.1.2.1.105.1.1.1.3.1.$action i 1"
-  snmpset -v $version -c $community $ip:$port 1.3.6.1.2.1.105.1.1.1.3.1.$action i 1
-fi
-timing=$(date '+%Y%m%d %H:%M:%S')
-echo "[$timing] Start port $action on $device" >> log.txt
+pauseDevice(){
+curl --silent --output /dev/null --show-error --fail -u $MADmin_user:$MADmin_pass "$MADmin_url/api/device/$deviceid" -H "Content-Type: application/json-rpc" --data-binary '{"call":"device_state","args":{"active":0}}' || { echo "Failed to pause device" ; exit 1; }
 }
 
-stophilink(){
-adjusted_action=$((action-1))
-if [ $relaytype == no ]
-then
-setrelay=off
-else
-setrelay=on
-fi
-cd $folder && ./relaytoggle.sh $adjusted_action $setrelay $ip $port
-timing=$(date '+%Y%m%d %H:%M:%S')
-echo "[$timing] Stop port $action on $device" >> log.txt
+unpauseDevice(){
+curl --silent --output /dev/null --show-error --fail -u $MADmin_user:$MADmin_pass "$MADmin_url/api/device/$deviceid" -H "Content-Type: application/json-rpc" --data-binary '{"call":"device_state","args":{"active":1}}' || { echo "Failed to unpause device" ; exit 1; }
 }
 
-starthilink(){
-adjusted_action=$((action-1))
-if [ $relaytype == no ]
-then
-setrelay=on
-else
-setrelay=off
-fi
-cd $folder && ./relaytoggle.sh $adjusted_action $setrelay $ip $port
-timing=$(date '+%Y%m%d %H:%M:%S')
-echo "[$timing] Start port $action on $device" >> log.txt
+quitPogo(){
+curl --silent --output /dev/null --show-error --fail -u $MADmin_user:$MADmin_pass "$MADmin_url/quit_pogo?origin=$origin" || { echo "Failed to quit pogo" ; exit 1; }
 }
 
-if [[ -z ${1+x} || -z ${2+x} || -z ${3+x} ]]
-then
-  # ask the questions
-  devices=$(cat $folder/config.ini | grep '\[' | awk '{print $1}' | paste -s -d, - | tr '[' ' ' | tr ']' ' ')
-  echo "Enter name of switch/relay to be used ($devices):"
-  read device
-  echo ""
-  echo "Action: status, stop, start or (power)cycle"
-  read activity
-  echo ""
-  if [[ $activity != status ]]
-  then
-  relays=$(grep -A4 '\[' $folder/config.ini | grep -A4 $device | tail -1 | awk '{ print $3 }')
-  echo "Enter port number (from 1 to $relays) or all"
-  read action
-  echo ""
-  fi
-else
-  device=$1
-  activity=$2
-  action=$3
-fi
+startPogo(){
+curl --silent --output /dev/null --show-error --fail -u $MADmin_user:$MADmin_pass "$MADmin_url/quit_pogo?origin=$origin&restart=1" || { echo "Failed to (re)start pogo" ; exit 1; }
+}
 
+rebootDevice(){
+curl --silent --output /dev/null --show-error --fail -u $MADmin_user:$MADmin_pass "$MADmin_url/restart_phone?origin=$origin"  || { echo "Failed to reboot device" ; exit 1; }
+}
 
-# get variables
-type=$(grep -A1 '\[' $folder/config.ini | grep -A1 $device | tail -1 | awk '{ print $3 }')
-ip=$(grep -A2 '\[' $folder/config.ini | grep -A2 $device | tail -1 | awk '{ print $3 }')
-port=$(grep -A3 '\[' $folder/config.ini | grep -A3 $device | tail -1 | awk '{ print $3 }')
-relays=$(grep -A4 '\[' $folder/config.ini | grep -A4 $device | tail -1 | awk '{ print $3 }')
-sleep=$(grep -A5 '\[' $folder/config.ini | grep -A5 $device | tail -1 | awk '{ print $3 }')
-if [ $type == hilink ]
-then
-  relaytype=$(grep -A6 '\[' $folder/config.ini | grep -A6 $device | tail -1 | awk '{ print $3 }')
-fi
-if [ $type == poe ]
-then
-  version=$(grep -A7 '\[' $folder/config.ini | grep -A7 $device | tail -1 | awk '{ print $3 }')
-  community=$(grep -A8 '\[' $folder/config.ini | grep -A8 $device | tail -1 | awk '{ print $3 }')
-fi
-useSSH=$(grep 'useSSH' $folder/config.ini | awk '{ print $3 }')
-if [ $useSSH == true ]
-then
-  ssh_user=$(grep 'ssh_user' $folder/config.ini | awk '{ print $3 }')
-  ssh_ip=$(grep 'ssh_ip' $folder/config.ini | awk '{ print $3 }')
-  ssh_port=$(grep 'ssh_port' $folder/config.ini | awk '{ print $3 }')
-fi
+logcatDevice(){
+#  filename=$(curl --silent --show-error --fail -L --head -u  $MADmin_user:$MADmin_pass "$MADmin_url/download_logcat?origin=$origin" | grep -w filename | awk 'BEGIN { FS = "=" } ; { print $2 }'
+rm -f logcat_$origin.zip
+curl --silent  --show-error --fail -O -J -L -u $MADmin_user:$MADmin_pass "$MADmin_url/download_logcat?origin=$origin" || { echo 'Failed to download logcat' ; exit 1; }
+rm -f logcat.txt
+unzip -q logcat_$origin.zip
+rm -f logcat_$origin.zip
+}
 
+clearGame(){
+curl --silent --output /dev/null --show-error --fail -u $MADmin_user:$MADmin_pass "$MADmin_url/clear_game_data?origin=$origin"  || { echo "Failed to clear pogo game data" ; exit 1; }
+}
 
 # checks
-check=$(grep '\[' $folder/config.ini | grep $device | wc -l)
-if (( $check == 0 ))
+if [[ -z ${1+x} || -z ${2+x} ]]
 then
-  echo "$device not found in $folder/config.ini, check settings"
-  exit 1
+echo "Missing input paramter(s), exiting"
+exit 1
+fi
+if [ $2 != "pauseDevice" ] && [ $2 != "unpauseDevice" ] && [ $2 != "quitPogo" ] && [ $2 != "startPogo" ] && [ $2 != "rebootDevice" ] && [ $2 != "logcatDevice" ] && [ $2 != "clearGame" ]  && [ $2 != "cycle" ]
+then
+echo "Invalid action, exiting"
+exit 1
 fi
 
-if [[ $relays -lt $action ]]
-then
-  echo "$device has $relays ports available, $activity on relay $action is not possible"
-  exit 1
-fi
+# get variables
+origin=$1
+action=$2
+deviceid=$(query "$MAD_DB" "select device_id from settings_device where name = '$origin'") || echo "Cannot query MADdb for device_id"
+instance_name=$(query "$MAD_DB" "select b.name from settings_device a, madmin_instance b where a.name = '$origin' and a.instance_id = b.instance_id") || echo "Cannot query MADdb for instance_name"
+MADmin_url=$(grep -A1 "^MAD_instance_name.*$instance_name" $pathStats/config.ini | tail -1 | awk 'BEGIN { FS = "=" } ; { print $2 }')
+MADmin_user=$(grep -A2 "^MAD_instance_name.*$instance_name" $pathStats/config.ini | tail -1 | awk 'BEGIN { FS = "=" } ; { print $2 }')
+MADmin_pass=$(grep -A3 "^MAD_instance_name.*$instance_name" $pathStats/config.ini | tail -1 | awk 'BEGIN { FS = "=" } ; { print $2 }')
+
+#echo $origin
+#echo $action
+#echo $deviceid
+#echo $instance_name
+#echo $MADmin_url
+#echo $MADmin_user
+#echo $MADmin_pass
 
 
-# stop poe port(s)
-if [[ $type == poe && $activity == stop ]]
+if [ $action == "pauseDevice" ]
 then
-  if [ $action != all ]
-  then
-    stoppoe
-  fi
-  if [ $action == all ]
-  then
-    action=1
-    while (( $action <= $relays )); do
-    echo ""
-    echo "Disabling port $action"
-    stoppoe
-    sleep 3s
-    action=$((action+1))
-    done
-  fi
-fi
-# start poe port
-if [[ $type == poe && $activity == start ]]
+  pauseDevice
+elif [ $action == "unpauseDevice" ]
 then
-  if [ $action != all ]
-  then
-    startpoe
-  fi
-  if [ $action == all ]
-  then
-    action=1
-    while (( $action <= $relays )); do
-    echo ""
-    echo "Enabling port $action"
-    startpoe
-    sleep $sleep
-    action=$((action+1))
-    done
-  fi
-fi
-# cycle poe port
-if [[ $type == poe && $activity == cycle ]]
+  unpauseDevice
+elif [ $action == "quitPogo" ]
 then
-  if [ $action != all ]
-  then
-    stoppoe
-    sleep 5s
-    startpoe
-  fi
-  if [ $action == all ]
-  then
-    action=1
-    while (( $action <= $relays )); do
-    echo ""
-    echo "Power cycling port $action"
-    stoppoe
-    sleep 5s
-    startpoe
-    echo "wait till next port $sleep"
-    sleep $sleep
-    action=$((action+1))
-    done
-  fi
+  quitPogo
+elif [ $action == "startPogo" ]
+then
+  startPogo
+elif [ $action == "rebootDevice" ]
+then
+  rebootDevice
+elif [ $action == "logcatDevice" ]
+then
+  logcatDevice
+elif [ $action == "clearGame" ]
+then
+  clearGame
+elif [ $action == "cycle" ]
+then
+  relay_name=$(query "$STATS_DB" "select name from relay where origin = '$origin'") || echo "Cannot query STATSdb for relay_name"
+  relay_port=$(query "$STATS_DB" "select port from relay where origin = '$origin'") || echo "Cannot query STATSdb for relay_port"
+  $folder/relay_poe_control.sh $relay_name $action $relay_port
+else
+  echo "no clue anymore :P"
 fi
 
-# stop hilink port(s)
-if [[ $type == hilink && $activity == stop ]]
-then
-  if [ $action != all ]
-  then
-    stophilink
-  fi
-  if [ $action == all ]
-  then
-    action=1
-    while (( $action <= $relays )); do
-    echo ""
-    echo "Disabling port $action"
-    stoppoe
-    sleep 3s
-    action=$((action+1))
-    done
-  fi
-fi
-# start hilink port
-if [[ $type == hilink && $activity == start ]]
-then
-  if [ $action != all ]
-  then
-    starthilink
-  fi
-  if [ $action == all ]
-  then
-    action=1
-    while (( $action <= $relays )); do
-    echo ""
-    echo "Enabling port $action"
-    startpoe
-    sleep $sleep
-    action=$((action+1))
-    done
-  fi
-fi
-# cycle hilink port
-if [[ $type == hilink && $activity == cycle ]]
-then
-  if [ $action != all ]
-  then
-    stophilink
-    sleep 5s
-    starthilink
-  fi
-  if [ $action == all ]
-  then
-    action=1
-    while (( $action <= $relays )); do
-    echo ""
-    echo "Power cycling port $action"
-    stophilink
-    sleep 5s
-    starthilink
-    echo "wait till next port $sleep"
-    sleep $sleep
-    action=$((action+1))
-    done
-  fi
-fi
-
-# status hilink ports
-if [[ $type == hilink && $activity == status ]]
-then
- cd $folder && ./relaystatus.sh $ip $port
-timing=$(date '+%Y%m%d %H:%M:%S')
-echo "[$timing] Status request on $device" >> log.txt
-fi
-
-# status poe ports
-if [[ $type == poe && $activity == status ]]
-then
-  if [ $useSSH == true ]
-  then
-    ssh -p $ssh_port $ssh_user@$ssh_ip "snmpwalk -v $version -c $community $ip:$port 1.3.6.1.2.1.105.1.3.1.1.4 | sed 's/iso.3.6.1.2.1.105.1.3.1.1.4.1 = Gauge32:/PoE power consumption:/g' | sed 's/$/ W/'"
-  else
-    snmpwalk -v $version -c $community $ip:$port 1.3.6.1.2.1.105.1.3.1.1.4 | sed "s/iso.3.6.1.2.1.105.1.3.1.1.4.1 = Gauge32:/PoE power consumption:/g" | sed "s/$/ W/"
-  fi
-echo ""
-echo "Port status"
-  if [ $useSSH == true ]
-  then
-    ssh -p $ssh_port $ssh_user@$ssh_ip "snmpwalk -v $version -c $community $ip:$port 1.3.6.1.2.1.2.2.1.8 | head -$relays | sed 's/INTEGER: 1/on/g' | sed 's/INTEGER: 2/off/g' | sed 's/iso.3.6.1.2.1.2.2.1.8./#/g'"
-  else
-    snmpwalk -v $version -c $community $ip:$port 1.3.6.1.2.1.2.2.1.8 | head -$relays | sed "s/INTEGER: 1/on/g" | sed "s/INTEGER: 2/off/g" | sed "s/iso.3.6.1.2.1.2.2.1.8./#/g"
-  fi
-timing=$(date '+%Y%m%d %H:%M:%S')
-echo "[$timing] Status request on $device" >> log.txt
-fi
