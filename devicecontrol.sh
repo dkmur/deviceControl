@@ -23,23 +23,28 @@ curl --silent --output /dev/null --show-error --fail -u $MADmin_user:$MADmin_pas
 }
 
 quitPogo(){
-curl --silent --output /dev/null --show-error --fail -u $MADmin_user:$MADmin_pass "$MADmin_url/quit_pogo?origin=$origin" || echo "Failed to quit pogo" && exit 1
+curl --silent --output /dev/null --show-error --fail -u $MADmin_user:$MADmin_pass "$MADmin_url/quit_pogo?origin=$origin" || { echo "Failed to quit pogo" ; exit 1; }
 }
 
 startPogo(){
-curl --silent --output /dev/null --show-error --fail -u $MADmin_user:$MADmin_pass "$MADmin_url/quit_pogo?origin=$origin&restart=1" || echo "Failed to (re)start pogo" && exit 1
+curl --silent --output /dev/null --show-error --fail -u $MADmin_user:$MADmin_pass "$MADmin_url/quit_pogo?origin=$origin&restart=1" || { echo "Failed to (re)start pogo" ; exit 1; }
 }
 
 rebootDevice(){
-curl --silent --output /dev/null --show-error --fail -u $MADmin_user:$MADmin_pass "$MADmin_url/restart_phone?origin=$origin"  || echo "Failed to reboot device" && exit 1
+curl --silent --output /dev/null --show-error --fail -u $MADmin_user:$MADmin_pass "$MADmin_url/restart_phone?origin=$origin"  || { echo "Failed to reboot device" ; exit 1; }
 }
 
 logcatDevice(){
-curl --silent  --show-error --fail -O -J -L -u $MADmin_user:$MADmin_pass "$MADmin_url/download_logcat?origin=$origin"
+#  filename=$(curl --silent --show-error --fail -L --head -u  $MADmin_user:$MADmin_pass "$MADmin_url/download_logcat?origin=$origin" | grep -w filename | awk 'BEGIN { FS = "=" } ; { print $2 }'
+rm -f logcat_$origin.zip
+curl --silent  --show-error --fail -O -J -L -u $MADmin_user:$MADmin_pass "$MADmin_url/download_logcat?origin=$origin" || { echo 'Failed to download logcat' ; exit 1; }
+rm -f logcat.txt
+unzip -q logcat_$origin.zip
+rm -f logcat_$origin.zip
 }
 
 clearGame(){
-curl --silent --output /dev/null --show-error --fail -u $MADmin_user:$MADmin_pass "$MADmin_url/clear_game_data?origin=$origin"  || echo "Failed to clear pogo game data" && exit 1
+curl --silent --output /dev/null --show-error --fail -u $MADmin_user:$MADmin_pass "$MADmin_url/clear_game_data?origin=$origin"  || { echo "Failed to clear pogo game data" ; exit 1; }
 }
 
 # checks
@@ -74,27 +79,22 @@ MADmin_pass=$(grep -A3 "^MAD_instance_name.*$instance_name" $pathStats/config.in
 
 if [ $action == "pauseDevice" ]
 then
-  pause
+  pauseDevice
 elif [ $action == "unpauseDevice" ]
 then
-  unpause
+  unpauseDevice
 elif [ $action == "quitPogo" ]
 then
-  quit
+  quitPogo
 elif [ $action == "startPogo" ]
 then
-  start
+  startPogo
 elif [ $action == "rebootDevice" ]
 then
-  reboot
+  rebootDevice
 elif [ $action == "logcatDevice" ]
 then
-#  filename=$(curl --silent --show-error --fail -L --head -u  $MADmin_user:$MADmin_pass "$MADmin_url/download_logcat?origin=$origin" | grep -w filename | awk 'BEGIN { FS = "=" } ; { print $2 }'
-  rm -f logcat_$origin.zip
   logcatDevice
-  rm -f logcat.txt
-  unzip -q logcat_$origin.zip
-  rm -f logcat_$origin.zip
 elif [ $action == "clearGame" ]
 then
   clearGame
