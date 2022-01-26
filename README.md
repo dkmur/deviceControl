@@ -13,8 +13,13 @@ scripts to:
 If your server isn't local, for PoE there is the option to have the snmp control over local server i.e. a rPI by setting up SSH key-based authentication. See https://linuxize.com/post/how-to-setup-passwordless-ssh-login/.<br>
 
 ## Usage
-execute `./relay_poe_control.sh`<br>
+1 `./relay_poe_control.sh`, it will ask for inputs on what to execute or can be used as described in section MadGruber-scripts from commandline<br>
 <br>
+2 `./devicecontrol.sh origin action` where:<br>
+- origin 
+- action = pauseDevice, unpauseDevice, quitPogo, startPogo (can also be used to restart pogo), rebootDevice, logcatDevice, clearGame or cycle (requires table below)
+<br>
+
 ## MadGruber
 ### Scripts
 relay_poe_control.sh allows for inputs on command line so it can be controlled via MadGruber.<br>
@@ -36,3 +41,5 @@ CREATE TABLE IF NOT EXISTS `relay` (
   PRIMARY KEY (`origin`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
+<br>
+
