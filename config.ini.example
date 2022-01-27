@@ -1,9 +1,18 @@
+# Stats path
 pathStats = /home/....			# path to dkmur Stats to re-use MADmin/instance + DB settings
 
+# ssh settings
 useSSH = false				# true/false to use SSH key-based authentication to conrol PoE via local server i.e. rPI
 ssh_user = dkmur			# user as defined on local server
 ssh_ip = 123.456.789.0			# ip address to local server, when using this option most likely your home WAN IP
 ssh_port = 22				# port to use, make sure the port is forwarded to local server 
+
+# auto powercycle settings
+noProtoMinutes = 10			# number of minutes no proto is received to consider device for auto cycle (we do not receive data)
+noRestartMinutes = 10			# number of minutes after last pogo restart to consider device for auto cycle (mad does not attempt to fix by restart)
+noRebootMinutes = 10			# number of minutes after last reboot to consider device for auto cycle (mad does not attempt to fix by reboot)
+minWaitMinutes = 60			# minimum waiting time before power cycling the same port again (in minutes)
+maxPortCycle = 3			# max #ports that require cycling else exit script, to prevent i.e. cycling all devices when MAD is down
 
 # duplicate section below for each HiLink/PoE switch
 [device1]				# replace device1 with devicename you want to use
