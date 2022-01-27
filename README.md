@@ -39,6 +39,7 @@ CREATE TABLE IF NOT EXISTS `relay` (
   `name` varchar(50) NOT NULL,
   `port` int(6) NOT NULL,
   `lastCycle` datetime NOT NULL DEFAULT current_timestamp(),
+  `totCycle` int(6) DEFAULT 0,
   PRIMARY KEY (`origin`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```

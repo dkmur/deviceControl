@@ -175,7 +175,7 @@ then
     stoppoe
     sleep 5s
     startpoe
-    query "$STATS_DB" "update relay set lastCycle = now() where name = '$device' and port = '$action'"
+    query "$STATS_DB" "update relay set lastCycle = now(), totCycle = totCycle+1 where name = '$device' and port = '$action'"
   fi
   if [ $action == all ]
   then
@@ -186,7 +186,7 @@ then
     stoppoe
     sleep 5s
     startpoe
-    query "$STATS_DB" "update relay set lastCycle = now() where name = '$device' and port = '$action'"
+    query "$STATS_DB" "update relay set lastCycle = now(), totCycle = totCycle+1 where name = '$device' and port = '$action'"
     echo "wait till next port $sleep"
     sleep $sleep
     action=$((action+1))
@@ -240,7 +240,7 @@ then
     stophilink
     sleep 5s
     starthilink
-    query "$STATS_DB" "update relay set lastCycle = now() where name = '$device' and port = '$action'"
+    query "$STATS_DB" "update relay set lastCycle = now(), totCycle = totCycle+1 where name = '$device' and port = '$action'"
   fi
   if [ $action == all ]
   then
@@ -251,7 +251,7 @@ then
     stophilink
     sleep 5s
     starthilink
-    query "$STATS_DB" "update relay set lastCycle = now() where name = '$device' and port = '$action'"
+    query "$STATS_DB" "update relay set lastCycle = now(), totCycle = totCycle+1 where name = '$device' and port = '$action'"
     echo "wait till next port $sleep"
     sleep $sleep
     action=$((action+1))
