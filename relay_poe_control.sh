@@ -2,6 +2,18 @@
 
 folder=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
+pathStats=$(grep 'pathStats' $folder/config.ini | awk '{ print $3 }')
+source $pathStats/config.ini
+
+query(){
+if [ -z "$SQL_password" ]
+then
+  mysql -h$DB_IP -P$DB_PORT -u$SQL_user $1 -sN -e "$2;"
+else
+  mysql -h$DB_IP -P$DB_PORT -u$SQL_user -p$SQL_password $1 -sN -e "$2;"
+fi
+}
+
 stoppoe(){
 if [ $useSSH == true ]
 then
@@ -163,6 +175,7 @@ then
     stoppoe
     sleep 5s
     startpoe
+    query "$STATS_DB" "update relay set lastCycle = now() where name = '$device' and port = '$action'"
   fi
   if [ $action == all ]
   then
@@ -173,6 +186,7 @@ then
     stoppoe
     sleep 5s
     startpoe
+    query "$STATS_DB" "update relay set lastCycle = now() where name = '$device' and port = '$action'"
     echo "wait till next port $sleep"
     sleep $sleep
     action=$((action+1))
@@ -226,6 +240,7 @@ then
     stophilink
     sleep 5s
     starthilink
+    query "$STATS_DB" "update relay set lastCycle = now() where name = '$device' and port = '$action'"
   fi
   if [ $action == all ]
   then
@@ -236,6 +251,7 @@ then
     stophilink
     sleep 5s
     starthilink
+    query "$STATS_DB" "update relay set lastCycle = now() where name = '$device' and port = '$action'"
     echo "wait till next port $sleep"
     sleep $sleep
     action=$((action+1))
