@@ -23,7 +23,7 @@ minWaitMinutes=$(grep minWaitMinutes $folder/config.ini | awk '{ print $3 }')
 maxPortCycle=$(grep maxPortCycle $folder/config.ini | awk '{ print $3 }')
 
 # just the troublemakers
-troublemakers=$(query "$MAD_DB" "select count(a.device_id) from trs_status a where a.lastProtoDateTime < now() - interval '$noProtoMinutes' minute and a.lastPogoRestart < now() - interval '$noRestartMinutes' minute and a.lastPogoReboot < now() - interval '$noRebootMinutes' minute")
+troublemakers=$(query "$MAD_DB" "select count(a.device_id) from trs_status a where a.idle = 0 and a.lastProtoDateTime < now() - interval '$noProtoMinutes' minute and a.lastPogoRestart < now() - interval '$noRestartMinutes' minute and a.lastPogoReboot < now() - interval '$noRebootMinutes' minute")
 #troublemakers=10
 echo $troublemakers
 
@@ -44,5 +44,5 @@ echo "cycling $origin"
 echo "$folder/relay_poe_control.sh $relay_name cycle $relay_port"
 sleep 2s
 
-done < <(query "$MAD_DB" "select b.name, c.name, c.port from trs_status a, settings_device b, $STATS_DB.relay c where a.device_id = b.device_id and b.name = c.origin and c.lastCycle < now() - interval '$minWaitMinutes' minute and a.lastProtoDateTime < now() - interval '$noProtoMinutes' minute and a.lastPogoRestart < now() - interval '$noRestartMinutes' minute and a.lastPogoReboot < now() - interval '$noRebootMinutes' minute")
+done < <(query "$MAD_DB" "select b.name, c.name, c.port from trs_status a, settings_device b, $STATS_DB.relay c where a.device_id = b.device_id and b.name = c.origin and a.idle = 0 and c.lastCycle < now() - interval '$minWaitMinutes' minute and a.lastProtoDateTime < now() - interval '$noProtoMinutes' minute and a.lastPogoRestart < now() - interval '$noRestartMinutes' minute and a.lastPogoReboot < now() - interval '$noRebootMinutes' minute")
 
