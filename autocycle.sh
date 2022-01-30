@@ -40,9 +40,22 @@ origin=$(echo $line | awk '{print $1}')
 relay_name=$(echo $line | awk '{print $2}')
 relay_port=$(echo $line | awk '{print $3}')
 
-echo "cycling $origin"
-echo "$folder/relay_poe_control.sh $relay_name cycle $relay_port"
-sleep 2s
+#testing
+if [ ! -f $folder/testing.log ]
+then
+touch $folder/testing.log
+echo "Report_time       Origin        last_proto              last_pogo_restart       last_device_reboot " >>  $folder/testing.log
+fi
+
+data=$(query "$MAD_DB" "select b.name, lastProtoDateTime, lastPogoRestart, lastPogoReboot from trs_status a, settings_device b where a.device_id = b.device_id and b.name = '$origin'")
+now=$(date '+%Y%m%d %H:%M:%S')
+# echo "$now $data"
+echo "$now $data" >> $folder/testing.log
+
+# original
+#echo "cycling $origin"
+#echo "$folder/relay_poe_control.sh $relay_name cycle $relay_port"
+#sleep 2s
 
 done < <(query "$MAD_DB" "select b.name, c.name, c.port from trs_status a, settings_device b, $STATS_DB.relay c where a.device_id = b.device_id and b.name = c.origin and a.idle = 0 and c.lastCycle < now() - interval '$minWaitMinutes' minute and a.lastProtoDateTime < now() - interval '$noProtoMinutes' minute and a.lastPogoRestart < now() - interval '$noRestartMinutes' minute and a.lastPogoReboot < now() - interval '$noRebootMinutes' minute")
 
