@@ -1,6 +1,7 @@
 #!/bin/bash
 
 folder=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+exec_folder=$(pwd)
 
 pathStats=$(grep 'pathStats' $folder/config.ini | awk '{ print $3 }')
 source $pathStats/config.ini
@@ -47,13 +48,17 @@ clearGame(){
 curl --silent --output /dev/null --show-error --fail -u $MADmin_user:$MADmin_pass "$MADmin_url/clear_game_data?origin=$origin"  || { echo "Failed to clear pogo game data" ; exit 1; }
 }
 
+screenshot(){
+curl --silent  --show-error --fail -u $MADmin_user:$MADmin_pass "$MADmin_url/take_screenshot?origin=$origin" || { echo 'Failed to refresh screen' ; exit 1; }
+}
+
 # checks
 if [[ -z ${1+x} || -z ${2+x} ]]
 then
 echo "Missing input paramter(s), exiting"
 exit 1
 fi
-if [ $2 != "pauseDevice" ] && [ $2 != "unpauseDevice" ] && [ $2 != "quitPogo" ] && [ $2 != "startPogo" ] && [ $2 != "rebootDevice" ] && [ $2 != "logcatDevice" ] && [ $2 != "clearGame" ]  && [ $2 != "cycle" ]
+if [ $2 != "pauseDevice" ] && [ $2 != "unpauseDevice" ] && [ $2 != "quitPogo" ] && [ $2 != "startPogo" ] && [ $2 != "rebootDevice" ] && [ $2 != "logcatDevice" ] && [ $2 != "clearGame" ]  && [ $2 != "cycle" ] && [ $2 != "screenshot" ]
 then
 echo "Invalid action, exiting"
 exit 1
@@ -67,6 +72,7 @@ instance_name=$(query "$MAD_DB" "select b.name from settings_device a, madmin_in
 MADmin_url=$(grep -A1 "^MAD_instance_name.*$instance_name" $pathStats/config.ini | tail -1 | awk 'BEGIN { FS = "=" } ; { print $2 }')
 MADmin_user=$(grep -A2 "^MAD_instance_name.*$instance_name" $pathStats/config.ini | tail -1 | awk 'BEGIN { FS = "=" } ; { print $2 }')
 MADmin_pass=$(grep -A3 "^MAD_instance_name.*$instance_name" $pathStats/config.ini | tail -1 | awk 'BEGIN { FS = "=" } ; { print $2 }')
+MAD_path=$(grep -A4 "^MAD_instance_name.*$instance_name" $pathStats/config.ini | tail -1 | awk 'BEGIN { FS = "=" } ; { print $2 }')
 
 #echo $origin
 #echo $action
@@ -98,6 +104,10 @@ then
 elif [ $action == "clearGame" ]
 then
   clearGame
+elif [ $action == "screenshot" ]
+then
+  screenshot
+  cp $MAD_path/temp/screenshot_$origin.jpg $exec_folder/screenshot.jpg
 elif [ $action == "cycle" ]
 then
   relay_name=$(query "$STATS_DB" "select name from relay where origin = '$origin'") || echo "Cannot query STATSdb for relay_name"
