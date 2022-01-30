@@ -1,3 +1,5 @@
 config.ini
 *.txt
 *.zip
+*.log
+*.jpg
