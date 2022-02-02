@@ -112,11 +112,13 @@ elif [ $action == "cycle" ]
 then
   relay_name=$(query "$STATS_DB" "select name from relay where origin = '$origin'") || echo "Cannot query STATSdb for relay_name"
   relay_port=$(query "$STATS_DB" "select port from relay where origin = '$origin'") || echo "Cannot query STATSdb for relay_port"
-  if [[ -z ${relay_name+x} || -z ${relay_port+x} ]]
+  echo $relay_name
+  echo $relay_port
+  if [[ ! -z $relay_name && ! -z $relay_port ]]
   then
     $folder/relay_poe_control.sh $relay_name $action $relay_port
   else
-    echo "Origin not found in table relay"
+    echo "Relay name or port not found in table relay for $origin"
     exit 1
   fi
 else
