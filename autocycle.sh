@@ -25,7 +25,7 @@ webhook=$(grep webhook_maxPort $folder/config.ini | awk '{ print $3 }')
 
 # just the troublemakers
 troublemakers=$(query "$MAD_DB" "select count(a.device_id) from trs_status a where a.idle = 0 and a.lastProtoDateTime < now() - interval '$noProtoMinutes' minute and a.lastPogoRestart < now() - interval '$noRestartMinutes' minute and a.lastPogoReboot < now() - interval '$noRebootMinutes' minute")
-troublemakers=10
+#troublemakers=10
 #echo $troublemakers
 
 # check on max to cycle
