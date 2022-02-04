@@ -21,16 +21,18 @@ noRestartMinutes=$(grep noRestartMinutes $folder/config.ini | awk '{ print $3 }'
 noRebootMinutes=$(grep noRebootMinutes $folder/config.ini | awk '{ print $3 }')
 minWaitMinutes=$(grep minWaitMinutes $folder/config.ini | awk '{ print $3 }')
 maxPortCycle=$(grep maxPortCycle $folder/config.ini | awk '{ print $3 }')
+webhook=$(grep webhook_maxPort $folder/config.ini | awk '{ print $3 }')
 
 # just the troublemakers
 troublemakers=$(query "$MAD_DB" "select count(a.device_id) from trs_status a where a.idle = 0 and a.lastProtoDateTime < now() - interval '$noProtoMinutes' minute and a.lastPogoRestart < now() - interval '$noRestartMinutes' minute and a.lastPogoReboot < now() - interval '$noRebootMinutes' minute")
-#troublemakers=10
-echo $troublemakers
+troublemakers=10
+#echo $troublemakers
 
 # check on max to cycle
 if [ $troublemakers -gt $maxPortCycle  ]
 then
-  echo "Troublemakers ($troublemakers) exceed maxPortCycle ($maxPortCycle) as set in config.ini, exiting script"
+  echo "Troublemakers ($troublemakers) exceed maxPortCycle ($maxPortCycle) as set in config.ini, exiting script" >> $folder/testing.log
+  $pathStats/default_files/discord.sh --username "Autocycle failure" --color "16711680" --avatar "https://i.imgur.com/Y8jxfb9.png" --webhook-url "$webhook" --description "deviceControl autocycle script exit, too many devices require autocycling"
   exit 1
 fi
 
@@ -40,7 +42,7 @@ origin=$(echo $line | awk '{print $1}')
 relay_name=$(echo $line | awk '{print $2}')
 relay_port=$(echo $line | awk '{print $3}')
 
-#testing
+#testing + add max exit to log for now
 if [ ! -f $folder/testing.log ]
 then
 touch $folder/testing.log
