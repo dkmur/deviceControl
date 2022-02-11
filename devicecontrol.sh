@@ -41,6 +41,7 @@ rm -f logcat_$origin.zip
 curl --silent  --show-error --fail -O -J -L -u $MADmin_user:$MADmin_pass "$MADmin_url/download_logcat?origin=$origin" || { echo 'Failed to download logcat' ; exit 1; }
 rm -f logcat.txt
 rm -f vm.log
+rm -f vmapper.log
 unzip -q logcat_$origin.zip
 rm -f logcat_$origin.zip
 }
