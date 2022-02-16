@@ -12,7 +12,7 @@ else
   snmpset -v $version -c $community $ip:$port 1.3.6.1.2.1.105.1.1.1.3.1.$action i 2
 fi
 timing=$(date '+%Y%m%d %H:%M:%S')
-echo "[$timing] Stop port $action on $device" >> log.txt
+echo "[$timing] Stop port $action on $device" >> $folder/log.txt
 }
 
 startpoe(){
@@ -25,7 +25,7 @@ else
   snmpset -v $version -c $community $ip:$port 1.3.6.1.2.1.105.1.1.1.3.1.$action i 1
 fi
 timing=$(date '+%Y%m%d %H:%M:%S')
-echo "[$timing] Start port $action on $device" >> log.txt
+echo "[$timing] Start port $action on $device" >> $folder/log.txt
 }
 
 stophilink(){
@@ -38,7 +38,7 @@ setrelay=on
 fi
 cd $folder && ./relaytoggle.sh $adjusted_action $setrelay $ip $port
 timing=$(date '+%Y%m%d %H:%M:%S')
-echo "[$timing] Stop port $action on $device" >> log.txt
+echo "[$timing] Stop port $action on $device" >> $folder/log.txt
 }
 
 starthilink(){
@@ -51,7 +51,7 @@ setrelay=off
 fi
 cd $folder && ./relaytoggle.sh $adjusted_action $setrelay $ip $port
 timing=$(date '+%Y%m%d %H:%M:%S')
-echo "[$timing] Start port $action on $device" >> log.txt
+echo "[$timing] Start port $action on $device" >> $folder/log.txt
 }
 
 if [[ -z ${1+x} || -z ${2+x} || -z ${3+x} ]]
@@ -248,7 +248,7 @@ if [[ $type == hilink && $activity == status ]]
 then
  cd $folder && ./relaystatus.sh $ip $port
 timing=$(date '+%Y%m%d %H:%M:%S')
-echo "[$timing] Status request on $device" >> log.txt
+echo "[$timing] Status request on $device" >> $folder/log.txt
 fi
 
 # status poe ports
@@ -269,5 +269,5 @@ echo "Port status"
     snmpwalk -v $version -c $community $ip:$port 1.3.6.1.2.1.2.2.1.8 | head -$relays | sed "s/INTEGER: 1/on/g" | sed "s/INTEGER: 2/off/g" | sed "s/iso.3.6.1.2.1.2.2.1.8./#/g"
   fi
 timing=$(date '+%Y%m%d %H:%M:%S')
-echo "[$timing] Status request on $device" >> log.txt
+echo "[$timing] Status request on $device" >> $folder/log.txt
 fi
