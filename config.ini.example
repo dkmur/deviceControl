@@ -1,9 +1,15 @@
 pathStats = /home/....			# path to dkmur Stats to re-use MADmin/instance + DB settings
 
+# conrol PoE via local server
 useSSH = false				# true/false to use SSH key-based authentication to conrol PoE via local server i.e. rPI
 ssh_user = dkmur			# user as defined on local server
 ssh_ip = 123.456.789.0			# ip address to local server, when using this option most likely your home WAN IP
 ssh_port = 22				# port to use, make sure the port is forwarded to local server 
+
+# sendWorker (to a location)
+device_maxDistance = 50                 # maximum number of km to jump else exit
+device_waittime = 30                    # number of seconds to stay on location              
+device_toUse = all                      # allowed devices to be used: all or an array of devices i.e atv01,atv02,atv07
 
 # duplicate section below for each HiLink/PoE switch
 [device1]				# replace device1 with devicename you want to use
