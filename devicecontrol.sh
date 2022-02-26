@@ -90,9 +90,9 @@ device_toUse=$(grep "device_toUse" $folder/config.ini | awk '{ print $3 }')
 coords_input=$(sed 's/,/ /g' <<< $coords)
 if [[ $device_toUse == "all" ]]
 then
-  originDist=$(query "$MAD_DB" "select b.name, round(ST_Distance(a.currentPos,GeomFromText('POINT($coords_input)'))*111.38,0) as 'distance' from trs_status a, settings_device b where a.device_id=b.device_id and a.lastProtoDateTime > now() - interval 1 minute and idle = 0 order by distance limit 1")
+  originDist=$(query "$MAD_DB" "select b.name, round(ST_Distance(a.currentPos,GeomFromText('POINT($coords_input)'))*111.38,0) as 'distance' from trs_status a, settings_device b where a.device_id=b.device_id and a.lastProtoDateTime > now() - interval 1 minute and idle = 0 and a.area_id in (select area_id from settings_area_mon_mitm) order by distance limit 1")
 else
-  originDist=$(query "$MAD_DB" "select b.name, round(ST_Distance(a.currentPos,GeomFromText('POINT($coords_input)'))*111.38,0) as 'distance' from trs_status a, settings_device b where a.device_id=b.device_id and a.lastProtoDateTime > now() - interval 1 minute and idle = 0 and FIND_IN_SET(name,'$device_toUse') order by distance limit 1")
+  originDist=$(query "$MAD_DB" "select b.name, round(ST_Distance(a.currentPos,GeomFromText('POINT($coords_input)'))*111.38,0) as 'distance' from trs_status a, settings_device b where a.device_id=b.device_id and a.lastProtoDateTime > now() - interval 1 minute and idle = 0 and FIND_IN_SET(name,'$device_toUse') and a.area_id in (select area_id from settings_area_mon_mitm) order by distance limit 1")
 fi
 origin=$(echo $originDist | awk '{ print $1 }')
 distance=$(echo $originDist | awk '{ print $2 }')
@@ -105,8 +105,8 @@ then
 fi
 
 getvariables
-curl --silent  --show-error --fail -u $MADmin_user:$MADmin_pass "$MADmin_url/send_gps?origin=$origin&coords=$coords&sleeptime=$device_waittime" || { echo 'Failed to send $origin to location $coords' ; exit 1; }
-echo "$origin was send to $coords"
+echo curl --silent  --show-error --fail -u $MADmin_user:$MADmin_pass "$MADmin_url/send_gps?origin=$origin&coords=$coords&sleeptime=$device_waittime" || { echo 'Failed to send $origin to location $coords' ; exit 1; }
+echo " : $origin was sent to $coords"
 }
 
 # checks
