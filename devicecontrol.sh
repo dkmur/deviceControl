@@ -106,6 +106,7 @@ fi
 
 getvariables
 curl --silent  --show-error --fail -u $MADmin_user:$MADmin_pass "$MADmin_url/send_gps?origin=$origin&coords=$coords&sleeptime=$device_waittime" || { echo 'Failed to send $origin to location $coords' ; exit 1; }
+echo "$origin was send to $coords"
 }
 
 # checks
