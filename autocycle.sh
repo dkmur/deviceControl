@@ -24,14 +24,14 @@ maxPortCycle=$(grep maxPortCycle $folder/config.ini | awk '{ print $3 }')
 webhook=$(grep webhook_maxPort $folder/config.ini | awk '{ print $3 }')
 
 # just the troublemakers
-troublemakers=$(query "$MAD_DB" "select count(a.device_id) from trs_status a where a.idle = 0 and a.lastProtoDateTime < now() - interval '$noProtoMinutes' minute and a.lastPogoRestart < now() - interval '$noRestartMinutes' minute and a.lastPogoReboot < now() - interval '$noRebootMinutes' minute")
+troublemakers=$(query "$MAD_DB" "select count(a.device_id) from trs_status a where a.idle = 0 and a.lastProtoDateTime < now() - interval '$noProtoMinutes' minute and (a.lastPogoRestart < now() - interval '$noRestartMinutes' minute or a.lastPogoRestart is NULL) and (a.lastPogoReboot < now() - interval '$noRebootMinutes' minute or a.lastPogoReboot is NULL)")
 #troublemakers=10
-echo "date '+%Y%m%d %H:%M:%S' Troublemakers found: $troublemakers" >> $folder/autocycle.log
+echo "`date +%Y%m%d %H:%M:%S` Troublemakers found: $troublemakers" >> $folder/autocycle.log
 
 # check on max to cycle
 if [ $troublemakers -gt $maxPortCycle  ]
 then
-  echo "date '+%Y%m%d %H:%M:%S' Troublemakers exceed maxPortCycle ($maxPortCycle) as set in config.ini, exiting script" >> $folder/autocycle.log
+  echo "`date +%Y%m%d %H:%M:%S` Troublemakers exceed maxPortCycle ($maxPortCycle) as set in config.ini, exiting script" >> $folder/autocycle.log
   $pathStats/default_files/discord.sh --username "Autocycle failure" --color "16711680" --avatar "https://i.imgur.com/Y8jxfb9.png" --webhook-url "$webhook" --description "deviceControl autocycle script exit, too many devices require autocycling"
   exit 1
 fi
@@ -42,22 +42,9 @@ origin=$(echo $line | awk '{print $1}')
 relay_name=$(echo $line | awk '{print $2}')
 relay_port=$(echo $line | awk '{print $3}')
 
-# testing + add max exit to log for now
-# if [ ! -f $folder/testing.log ]
-# then
-# touch $folder/testing.log
-# echo "Report_time       Origin        last_proto              last_pogo_restart       last_device_reboot " >>  $folder/testing.log
-# fi
-
-# data=$(query "$MAD_DB" "select b.name, lastProtoDateTime, lastPogoRestart, lastPogoReboot from trs_status a, settings_device b where a.device_id = b.device_id and b.name = '$origin'")
-# now=$(date '+%Y%m%d %H:%M:%S')
-# echo "$now $data"
-# echo "$now $data" >> $folder/testing.log
-
-# original
-echo "date '+%Y%m%d %H:%M:%S' Cycling $origin on relay: $relay_name, port: $relay_port " >> $folder/autocycle.log
+echo "`date +%Y%m%d %H:%M:%S` Cycling $origin on relay: $relay_name, port: $relay_port " >> $folder/autocycle.log
 $folder/relay_poe_control.sh $relay_name cycle $relay_port
 sleep 2s
 
-done < <(query "$MAD_DB" "select b.name, c.name, c.port from trs_status a, settings_device b, $STATS_DB.relay c where a.device_id = b.device_id and b.name = c.origin and a.idle = 0 and c.lastCycle < now() - interval '$minWaitMinutes' minute and a.lastProtoDateTime < now() - interval '$noProtoMinutes' minute and a.lastPogoRestart < now() - interval '$noRestartMinutes' minute and a.lastPogoReboot < now() - interval '$noRebootMinutes' minute")
+done < <(query "$MAD_DB" "select b.name, c.name, c.port from trs_status a, settings_device b, $STATS_DB.relay c where a.device_id = b.device_id and b.name = c.origin and a.idle = 0 and c.lastCycle < now() - interval '$minWaitMinutes' minute and a.lastProtoDateTime < now() - interval '$noProtoMinutes' minute and (a.lastPogoRestart < now() - interval '$noRestartMinutes' minute or a.lastPogoRestart is NULL) and (a.lastPogoReboot < now() - interval '$noRebootMinutes' minute or a.lastPogoReboot is NULL)")
 
