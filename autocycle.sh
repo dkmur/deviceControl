@@ -21,7 +21,7 @@ noRestartMinutes=$(grep noRestartMinutes $folder/config.ini | awk '{ print $3 }'
 noRebootMinutes=$(grep noRebootMinutes $folder/config.ini | awk '{ print $3 }')
 minWaitMinutes=$(grep minWaitMinutes $folder/config.ini | awk '{ print $3 }')
 maxPortCycle=$(grep maxPortCycle $folder/config.ini | awk '{ print $3 }')
-webhook=$(grep webhook_maxPort $folder/config.ini | awk '{ print $3 }')
+webhook_autocycle=$(grep webhook_autocycle $folder/config.ini | awk '{ print $3 }')
 
 # just the troublemakers
 troublemakers=$(query "$MAD_DB" "select count(a.device_id) from trs_status a where a.idle = 0 and a.lastProtoDateTime < now() - interval '$noProtoMinutes' minute and (a.lastPogoRestart < now() - interval '$noRestartMinutes' minute or a.lastPogoRestart is NULL) and (a.lastPogoReboot < now() - interval '$noRebootMinutes' minute or a.lastPogoReboot is NULL)")
