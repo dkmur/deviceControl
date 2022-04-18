@@ -32,7 +32,10 @@ echo "`date '+%Y%m%d %H:%M:%S'` Troublemakers found: $troublemakers" >> $folder/
 if [ $troublemakers -gt $maxPortCycle  ]
 then
   echo "`date '+%Y%m%d %H:%M:%S'` Troublemakers exceed maxPortCycle ($maxPortCycle) as set in config.ini, exiting script" >> $folder/autocycle.log
-  $pathStats/default_files/discord.sh --username "Autocycle failure" --color "16711680" --avatar "https://i.imgur.com/Y8jxfb9.png" --webhook-url "$webhook" --description "deviceControl autocycle script exit, too many devices require autocycling"
+  if [ ! -z $webhook_autocycle ]
+  then
+    $pathStats/default_files/discord.sh --username "Autocycle cancelled" --color "16711680" --avatar "https://i.imgur.com/Y8jxfb9.png" --webhook-url "$webhook_autocycle" --description "deviceControl autocycle script exit, too many devices require autocycling"
+  fi
   exit 1
 fi
 
@@ -44,6 +47,10 @@ relay_port=$(echo $line | awk '{print $3}')
 
 echo "`date '+%Y%m%d %H:%M:%S'` Cycling $origin on relay: $relay_name, port: $relay_port " >> $folder/autocycle.log
 $folder/relay_poe_control.sh $relay_name cycle $relay_port
+if [ ! -z $webhook_autocycle ]
+then
+  $pathStats/default_files/discord.sh --username "Autocycle" --color "16711680" --avatar "https://i.imgur.com/Y8jxfb9.png" --webhook-url "$webhook_autocycle" --description "deviceControl autocycle cycled $origin on $relay_name, port number $relay_port"
+fi
 sleep 2s
 
 done < <(query "$MAD_DB" "select b.name, c.name, c.port from trs_status a, settings_device b, $STATS_DB.relay c where a.device_id = b.device_id and b.name = c.origin and a.idle = 0 and c.lastCycle < now() - interval '$minWaitMinutes' minute and a.lastProtoDateTime < now() - interval '$noProtoMinutes' minute and (a.lastPogoRestart < now() - interval '$noRestartMinutes' minute or a.lastPogoRestart is NULL) and (a.lastPogoReboot < now() - interval '$noRebootMinutes' minute or a.lastPogoReboot is NULL)")
