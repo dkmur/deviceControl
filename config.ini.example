@@ -13,7 +13,7 @@ noRestartMinutes = 10			# number of minutes after last pogo restart to consider 
 noRebootMinutes = 10			# number of minutes after last reboot to consider device for auto cycle (mad does not attempt to fix by reboot)
 minWaitMinutes = 60			# minimum waiting time before power cycling the same port again (in minutes)
 maxPortCycle = 3			# max #ports that require cycling else exit script, to prevent i.e. cycling all devices when MAD is down
-webhook_autocycle = ""			#webhook for discord notification on max Port Cycle exceeded or origin cycled
+webhook_autocycle = 			#webhook for discord notification on max Port Cycle exceeded or origin cycled
 
 # sendWorker (to a location)
 device_maxDistance = 50                 # maximum number of km to jump else exit
