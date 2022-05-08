@@ -43,5 +43,19 @@ CREATE TABLE IF NOT EXISTS `relay` (
   PRIMARY KEY (`origin`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
+
+- for use of RebootMadDevice scripts you have to enable it in the config and create the table rmd in the STATSdb and create one entry per device with the details.
+  https://github.com/GhostTalker/RebootMadDevice
+```
+CREATE TABLE IF NOT EXISTS `rmd` (
+  `origin` varchar(50) NOT NULL,
+  `ssh_ip` varchar(20) NOT NULL,
+  `ssh_port` int(6) NOT NULL,
+  `ssh_user` varchar(20) NOT NULL,
+  `dest_rmdpath` varchar(100) NOT NULL,
+  `dest_pyvenv` varchar(100) NOT NULL,  
+  PRIMARY KEY (`origin`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
 <br>
 

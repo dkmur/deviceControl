@@ -6,6 +6,8 @@ exec_folder=$(pwd)
 pathStats=$(grep 'pathStats' $folder/config.ini | awk '{ print $3 }')
 source $pathStats/config.ini
 
+useRMD=$(grep 'useRMD' $folder/config.ini | awk '{ print $3 }')
+
 origin=$1
 action=$2
 coords=$3
@@ -151,17 +153,39 @@ then
   sendWorker
 elif [ $action == "cycle" ]
 then
-  relay_name=$(query "$STATS_DB" "select name from relay where origin = '$origin'") || echo "Cannot query STATSdb for relay_name"
-  relay_port=$(query "$STATS_DB" "select port from relay where origin = '$origin'") || echo "Cannot query STATSdb for relay_port"
-  echo $relay_name
-  echo $relay_port
-  if [[ ! -z $relay_name && ! -z $relay_port ]]
+  if [ $useRMD == "true" ]
   then
-    $folder/relay_poe_control.sh $relay_name $action $relay_port
+      echo "Use RMD scripts for reboot device"
+      dest_ip=$(query "$STATS_DB" "select ssh_ip from rmd where origin = '$origin'") || echo "Cannot query STATSdb for ssh_ip"
+      dest_port=$(query "$STATS_DB" "select ssh_port from rmd where origin = '$origin'") || echo "Cannot query STATSdb for ssh_port"
+      dest_user=$(query "$STATS_DB" "select ssh_user from rmd where origin = '$origin'") || echo "Cannot query STATSdb for ssh_user"
+      dest_rmdpath=$(query "$STATS_DB" "select dest_rmdpath from rmd where origin = '$origin'") || echo "Cannot query STATSdb for dest_rmdpath"
+      dest_pyvenv=$(query "$STATS_DB" "select dest_pyvenv from rmd where origin = '$origin'") || echo "Cannot query STATSdb for dest_pyvenv"
+      echo $dest_ip
+      echo $dest_port
+      echo $dest_user
+      echo $dest_rmdpath
+      echo $dest_pyvenv
+      if [[ ! -z $dest_ip && ! -z $dest_port ]]
+      then
+        ssh -p $dest_port $dest_user@$dest_ip "$dest_pyvenv/bin/python3 $dest_rmdpath/ManualReboot.py -o $origin"
+      else
+        echo "ipadress or port not found in table rmd for $origin"
+        exit 1
+      fi  
   else
-    echo "Relay name or port not found in table relay for $origin"
-    exit 1
-  fi
+      relay_name=$(query "$STATS_DB" "select name from relay where origin = '$origin'") || echo "Cannot query STATSdb for relay_name"
+      relay_port=$(query "$STATS_DB" "select port from relay where origin = '$origin'") || echo "Cannot query STATSdb for relay_port"
+      echo $relay_name
+      echo $relay_port
+      if [[ ! -z $relay_name && ! -z $relay_port ]]
+      then
+        $folder/relay_poe_control.sh $relay_name $action $relay_port
+      else
+        echo "Relay name or port not found in table relay for $origin"
+        exit 1
+      fi
+  fi   
 else
   echo "no clue anymore :P"
 fi

@@ -15,6 +15,9 @@ minWaitMinutes = 60			# minimum waiting time before power cycling the same port 
 maxPortCycle = 3			# max #ports that require cycling else exit script, to prevent i.e. cycling all devices when MAD is down
 webhook_maxPort = "https://discord.com/api/webhooks/...  "		#webhook for discord notification on max Port Cycle exceeded for autocycle script
 
+# control via RMD scripts 
+useRMD = true
+
 # sendWorker (to a location)
 device_maxDistance = 50                 # maximum number of km to jump else exit
 device_waittime = 30                    # number of seconds to stay on location
